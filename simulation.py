@@ -58,10 +58,11 @@ def update_agents(df, t):
     dummy_agent.trade(df)
     print(f"MAC Agent Portfolio Value: {mac_agent.get_portfolio_value(current_price)}")
     print(f"Dummy Agent Portfolio Value: {dummy_agent.get_portfolio_value(current_price)}")
+    print()
 
     return df
 
-interval = 1
+interval = 0.5
 t = 0
 while True:
     df = update_agents(df, t)
