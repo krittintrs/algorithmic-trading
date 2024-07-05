@@ -3,7 +3,7 @@ import pandas as pd
 
 class MovingAverageCrossoverAgent:
     def __init__(self, short_window=2, long_window=5):
-        self.name = "Dummy"
+        self.name = "MAC"
         self.position = 0  # 0: No position, 1: Long, -1: Short
         self.cash = 100000  # Starting cash in USD
         self.holdings = 0

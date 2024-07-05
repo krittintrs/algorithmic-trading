@@ -23,6 +23,7 @@ def fetch_historical_data(symbol, interval, limit=1000):
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     df.set_index('timestamp', inplace=True)
     df = df[['open', 'high', 'low', 'close', 'volume']].astype(float)
+    df = df.rename(columns=lambda x: x.capitalize())
     return df
     
 def preprocess_data(df):
@@ -42,6 +43,7 @@ def update_data(df):
 
 from agent_ma import MovingAverageCrossoverAgent
 from agent_dummy import DummyAgent
+from agent_xgboost import XGBoostAgent
 
 # Initialize DataFrame to store live data
 df = pd.DataFrame(columns=['Date', 'Close'])
@@ -50,21 +52,29 @@ df = pd.DataFrame(columns=['Date', 'Close'])
 mac_agent = MovingAverageCrossoverAgent()
 dummy_agent = DummyAgent()
 
+# ML agent
+xgboost_agent = XGBoostAgent()
+train_df = fetch_historical_data('BTCUSDT', '1m')
+xgboost_agent.train_model(train_df)
+
 # Function to update agents and print portfolio values
 def update_agents(df, t):
     df = update_data(df)
     current_price = df['Close'].iloc[-1]
     mac_agent.trade(df)
     dummy_agent.trade(df)
+    xgboost_agent.trade(df)
     print(f"MAC Agent Portfolio Value: {mac_agent.get_portfolio_value(current_price)}")
     print(f"Dummy Agent Portfolio Value: {dummy_agent.get_portfolio_value(current_price)}")
+    print(f"XGBoost Agent Portfolio Value: {xgboost_agent.get_portfolio_value(current_price)}")
     print()
 
     return df
 
-interval = 0.5
-t = 0
-while True:
-    df = update_agents(df, t)
-    time.sleep(interval)  # Fetch data and trade every minute
-    t += 1
+if __name__ == "__main__":
+    interval = 2
+    t = 0
+    while True:
+        df = update_agents(df, t)
+        time.sleep(interval)  # Fetch data and trade every minute
+        t += 1
